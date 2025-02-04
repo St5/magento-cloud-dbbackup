@@ -1,5 +1,5 @@
 #!/bin/bash
-#version 1.0.0
+#version 1.0.1
 
 # Configurations
 DumpDir="/var/www/Dump"
@@ -22,11 +22,19 @@ timestamp=$(date +"%Y%m%d%H%M")
 
 filename="${current_dir##*/}_${env}_$timestamp.sql.zip"
 dbname="${current_dir##*/}_${env}_$(date +"%Y%m%d")"
+# Remove -, because it is not allowed in the database name
+dbname="${dbname//-/_}"
 
 # Downloading DB from Magento Cloud
 echo "Start download DB: magento-cloud db:dump -z -f $filename -e $env"
 magento-cloud db:dump -z -f $filename -e $env
-echo "DB was uploaded"
+if [ $? -eq 0 ]; then
+    echo "DB was uploaded"
+else
+    echo -e "\033[31mError: Failed to uploaded database \033[0m" >&2
+    exit 1
+fi
+
 
 # Copying dump file to the storage dumps directory
 mv "$filename" "$DumpDir"
@@ -55,7 +63,12 @@ fi
 
 # Create a new database
 mysql -h "$host" -u"$dbuser" -p"$dbpass" -e "CREATE DATABASE $dbname;"
-echo "$dbname was created"
+if [ $? -eq 0 ]; then
+    echo "$dbname was created"
+else
+    echo -e "\033[31mError: Failed to create database $dbname\033[0m" >&2
+    exit 1
+fi
 
 # Import the database
 echo "Import DB is starting..."
