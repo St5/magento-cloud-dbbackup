@@ -14,6 +14,12 @@ Its primary function is to facilitate quick updates of your local database from 
 - Offers to delete the dump file after import.
 - Offers to update `app/etc/env.php` with the new database name.
 
+## Download/Update
+
+```shellscript
+wget -O dbackup.sh https://raw.githubusercontent.com/St5/magento-cloud-dbbackup/main/dbackup.sh
+```
+
 ## Usage
 
 The script should be placed in the root directory of your project. 
